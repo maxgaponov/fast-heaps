@@ -10,33 +10,28 @@ std::mt19937 rnd(42);
 void benchmark(int N, int Q) {
     prepare(N);
 
-    for (int i = 0; i < N; ++i) {
-        int x = rnd() % MAX_VAL;
-        #ifdef DEBUG
-        std::cerr << "push " << x << std::endl;
-        #endif
-        push(x);
-    }
-
-    std::vector<int> q(Q);
-    for (int i = 0; i < Q; ++i) {
-        q[i] = rnd() % MAX_VAL;
-    }
-
-    std::clock_t start = clock();
+    std::vector<int> queries(N);
+    double elapsed = 0.0;
     int checksum = 0;
-    for (int i = 0; i < Q; ++i) {
-        int val = pop();
-        #ifdef DEBUG
-        std::cerr << "pop " << val << std::endl;
-        std::cerr << "push " << q[i] << std::endl;
-        #endif
-        checksum ^= val;
-        push(q[i]);
+    for (int i = -2; i < Q; ++i) {
+        for (int i = 0; i < N; ++i) {
+            queries[i] = rnd() % MAX_VAL;
+        }
+        std::clock_t start = clock();
+        for (int i = 0; i < N; ++i) {
+            push(queries[i]);
+        }
+        for (int i = 0; i < N; ++i) {
+            checksum ^= pop();
+        }
+        double elapsed_i = double(clock() - start);
+        if (i >= 0) {
+            elapsed += elapsed_i;
+        }
     }
 
-    double elapsed_sec = double(clock() - start) / CLOCKS_PER_SEC;
-    double latency_ns = elapsed_sec * 1e9 / Q;
+    double elapsed_sec = elapsed / CLOCKS_PER_SEC;
+    double latency_ns = elapsed_sec * 1e9 / N / Q;
     printf("checksum: %d\n", checksum);
     printf("latency: %.2f\n", latency_ns);
 }

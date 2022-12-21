@@ -3,10 +3,10 @@
 #include <x86intrin.h>
 #include <bits/stdc++.h>
 
-int size = 0;
+unsigned size = 0;
 int* q;
 
-const int D = 8;
+const unsigned D = 8;
 
 void prepare(int N) {
     int _N = 1;
@@ -14,22 +14,23 @@ void prepare(int N) {
     N = _N * D;
 
     q = new (std::align_val_t(64)) int[N];
-    for (int i = 0; i < N; ++i) {
+    q[0] = INT_MIN;
+    for (int i = 1; i < N; ++i) {
         q[i] = INT_MAX;
     }
 }
 
 void push(int x) {
-    int i = size;
     size++;
-    while (i >= D && q[(i - D) / D] > x) {
-        q[i] = q[(i - D) / D];
-        i = (i - D) / D;
+    unsigned i = size;
+    while (q[i / D] > x) {
+        q[i] = q[i / D];
+        i /= D;
     }
     q[i] = x;
 }
 
-inline void get_min(int* q, int& res, int& idx) {
+inline void get_min(int* q, int& res, unsigned& idx) {
     __m256i v = _mm256_load_si256((__m256i*) &q[0]);
     __m256i i = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
 
@@ -53,19 +54,25 @@ inline void get_min(int* q, int& res, int& idx) {
 
 int pop() {
     int res = INT_MAX;
-    int i = -1;
+    unsigned i = 0;
+    q[0] = INT_MAX;
     get_min(q, res, i);
-    size--;
+    q[0] = INT_MIN;
+    
     int val = q[size];
     q[size] = INT_MAX;
+    size--;
+    if (i == size + 1) {
+        return res;
+    }
     while (1) {
-        int chld = INT_MAX;
-        int j = -1;
-        get_min(q + i * D + D, chld, j);
-        j += i * D + D;
-        if (val > q[j]) {
-            q[i] = q[j];
-            i = j;
+        unsigned left_son = i * D;
+        int min_val = INT_MAX;
+        unsigned next_i = 0;
+        get_min(q + left_son, min_val, next_i);
+        if (min_val < val) {
+            q[i] = min_val;
+            i = left_son + next_i;
         } else {
             break;
         }

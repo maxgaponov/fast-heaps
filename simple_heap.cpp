@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 
-int size = 0;
+unsigned size = 0;
 int* q;
 
 void prepare(int N) {
@@ -9,46 +9,40 @@ void prepare(int N) {
     N = _N * 2;
 
     q = new (std::align_val_t(64)) int[N];
-    for (int i = 0; i < N; ++i) {
+    q[0] = INT_MIN;
+    for (int i = 1; i < N; ++i) {
         q[i] = INT_MAX;
     }
 }
 
 void push(int x) {
-    int i = size;
     size++;
-    while (i > 0 && q[(i - 1) / 2] > x) {
-        q[i] = q[(i - 1) / 2];
-        i = (i - 1) / 2;
+    unsigned i = size;
+    while (q[i >> 1] > x) {
+        q[i] = q[i >> 1];
+        i >>= 1;
     }
     q[i] = x;
 }
 
 int pop() {
-    int res = q[0];
-    size--;
+    int res = q[1];
     int val = q[size];
     q[size] = INT_MAX;
-    int i = 0;
+    size--;
+    unsigned i = 1;
     while (1) {
-        // __builtin_prefetch(&q[i * 2 + 1]);
-        int c1 = q[i * 2 + 1];
-        int c2 = q[i * 2 + 2];
-        q[i] = (c1 < c2 ? c1 : c2);
-        if (q[i] < val) {
-            i = 2 * i + (c1 < c2 ? 1 : 2);
+        __builtin_prefetch(&q[i * 16]);
+        int c1 = q[i * 2];
+        int c2 = q[i * 2 + 1];
+        int min_val = (c1 < c2 ? c1 : c2);
+        if (min_val < val) {
+            q[i] = min_val;
+            i = 2 * i + (c1 > c2);
         } else {
-            q[i] = val;
-            return res;
+            break;
         }
-        // int j = i * 2 + (q[i * 2 + 1] < q[i * 2 + 2] ? 1 : 2);
-        // if (val > q[j]) {
-        //     q[i] = q[j];
-        //     i = j;
-        // } else {
-        //     break;
-        // }
     }
-    // q[i] = val;
+    q[i] = val;
     return res;
 }
