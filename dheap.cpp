@@ -3,7 +3,7 @@
 unsigned size = 0;
 int* q;
 
-const unsigned D = 4;
+const unsigned D = BRANCHING_FACTOR;
 
 void prepare(int N) {
     int _N = 1;
@@ -44,7 +44,6 @@ int pop() {
         return res;
     }
     while (1) {
-        __builtin_prefetch(&q[i * D * D]);
         unsigned left_son = i * D;
         int min_val = INT_MAX;
         for (unsigned j = 0; j < D; ++j) {
