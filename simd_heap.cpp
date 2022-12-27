@@ -31,25 +31,33 @@ void push(int x) {
 }
 
 inline void get_min(int* q, int& res, unsigned& idx) {
-    __m256i v = _mm256_load_si256((__m256i*) &q[0]);
-    __m256i i = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
-
-    __m256i p[3] = {
-        _mm256_setr_epi32(1, 2, 3, 4, 5, 6, 7, 0),
-        _mm256_setr_epi32(2, 0, 1, 3, 6, 4, 5, 7),
-        _mm256_setr_epi32(4, 0, 1, 2, 3, 5, 6, 7)
-    };
+    __m128i v0 = _mm_load_si128 ((__m128i*) &q[0]);
+    __m128i v1 = _mm_load_si128 ((__m128i*) &q[4]);
     
-    for (int iter = 0; iter < 3; ++iter) {
-        __m256i v_p = _mm256_permutevar8x32_epi32(v, p[iter]);
-        __m256i i_p = _mm256_permutevar8x32_epi32(i, p[iter]);
-        __m256i mask = _mm256_cmpgt_epi32(v, v_p);
-        v = _mm256_blendv_epi8(v, v_p, mask);
-        i = _mm256_blendv_epi8(i, i_p, mask);
+    __m128i i0 = _mm_setr_epi32(0, 1, 2, 3);
+    __m128i i1 = _mm_setr_epi32(4, 5, 6, 7);
+    
+    __m128i mask = _mm_cmpgt_epi32(v0, v1);
+    __m128i v = _mm_blendv_epi8(v0, v1, mask);
+    __m128i i = _mm_blendv_epi8(i0, i1, mask);
+
+    {
+        __m128i v_p = _mm_srli_si128(v, 4);
+        __m128i i_p = _mm_srli_si128(i, 4);
+        __m128i mask = _mm_cmpgt_epi32(v, v_p);
+        v = _mm_blendv_epi8(v, v_p, mask);
+        i = _mm_blendv_epi8(i, i_p, mask);
+    }
+    {
+        __m128i v_p = _mm_srli_si128(v, 8);
+        __m128i i_p = _mm_srli_si128(i, 8);
+        __m128i mask = _mm_cmpgt_epi32(v, v_p);
+        v = _mm_blendv_epi8(v, v_p, mask);
+        i = _mm_blendv_epi8(i, i_p, mask);
     }
 
-    res = _mm256_extract_epi32(v, 0);
-    idx = _mm256_extract_epi32(i, 0);
+    res = _mm_extract_epi32(v, 0);
+    idx = _mm_extract_epi32(i, 0);
 }
 
 int pop() {
