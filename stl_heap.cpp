@@ -1,8 +1,6 @@
 #include <bits/stdc++.h>
 
-using namespace std;
-
-priority_queue<int> q;
+std::priority_queue<int> q;
 
 void prepare(int N) {
 }

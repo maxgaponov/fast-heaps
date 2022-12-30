@@ -1,7 +1,4 @@
-*
-!/**/
-!*.*
-.vscode/
-.ipynb_checkpoints/
-*.s
-perf*
+asm/
+bin/
+figures/
+test/

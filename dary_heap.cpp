@@ -1,4 +1,12 @@
-#include <bits/stdc++.h>
+#ifndef BRANCHING_FACTOR
+#define BRANCHING_FACTOR 4
+#endif
+
+#ifndef PREFETCH_LEVEL
+#define PREFETCH_LEVEL 1
+#endif
+
+#include "utils.cpp"
 
 unsigned size = 0;
 int* q;
@@ -6,25 +14,11 @@ int* q;
 const unsigned D = BRANCHING_FACTOR;
 
 void prepare(int N) {
-    int _N = 1;
-    while (_N <= N) _N *= D;
-    N = _N * D;
-
-    q = new (std::align_val_t(64)) int[N];
-    q[0] = INT_MIN;
-    for (int i = 1; i < N; ++i) {
-        q[i] = INT_MAX;
-    }
+    q = utils::allocate_aligned_heap<D>(N);
 }
 
 void push(int x) {
-    size++;
-    unsigned i = size;
-    while (q[i / D] > x) {
-        q[i] = q[i / D];
-        i /= D;
-    }
-    q[i] = x;
+    utils::push<D>(q, x, size);
 }
 
 int pop() {
@@ -44,21 +38,25 @@ int pop() {
         return res;
     }
     while (1) {
+        if (i * D > size) {
+            q[i] = val;
+            return res;
+        }
+        utils::prefetch<D>(q, i);
         unsigned left_son = i * D;
         int min_val = INT_MAX;
         for (unsigned j = 0; j < D; ++j) {
             int val = q[left_son + j];
             min_val = (min_val < val ? min_val : val);
         }
+        q[i] = min_val;
+        for (unsigned j = 0; j < D; ++j) {
+            i = (q[left_son + j] == min_val ? left_son + j : i);
+        }
         if (min_val < val) {
-            q[i] = min_val;
-            for (unsigned j = 0; j < D; ++j) {
-                i = (q[left_son + j] == min_val ? left_son + j : i);
-            }
         } else {
-            break;
+            q[i / D] = val;
+            return res;
         }
     }
-    q[i] = val;
-    return res;
 }
