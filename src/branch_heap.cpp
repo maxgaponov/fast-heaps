@@ -4,6 +4,7 @@
 
 const unsigned D = 2;
 
+// TODO: speed up
 inline void get_min(int* q, int& res, unsigned& idx) {
     if (__builtin_expect(q[0] <= q[1], 1)) {
         res = q[0];
