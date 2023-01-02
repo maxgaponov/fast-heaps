@@ -22,7 +22,7 @@ void benchmark(int N, int Q) {
             push(queries[i]);
         }
         for (int i = 0; i < N; ++i) {
-            checksum ^= pop();
+            checksum ^= pop() + i;
         }
         double elapsed_i = double(clock() - start);
         if (i >= 0) {

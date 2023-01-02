@@ -29,15 +29,14 @@ int pop() {
         }
         int c1 = q[i * 2];
         int c2 = q[i * 2 + 1];
-        int min_val = c1;
-        int next_i = 2 * i;
-        if (__builtin_unpredictable(c1 > c2)) {
-            min_val = c2;
-            next_i++;
+        if (__builtin_expect(c1 <= c2, 1)) {
+            q[i] = c1;
+            i = 2 * i;
+        } else {
+            q[i] = c2;
+            i = 2 * i + 1;
         }
-        q[i] = min_val;
-        i = next_i;
-        if (min_val < val) {
+        if (q[i] < val) {
         } else {
             q[i >> 1] = val;
             return res;
