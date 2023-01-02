@@ -1,24 +1,14 @@
+#pragma GCC target("avx2")
+
 #include <x86intrin.h>
 
 #ifndef PREFETCH_LEVEL
 #define PREFETCH_LEVEL 1
 #endif
 
-#include "utils.cpp"
-
-unsigned size = 0;
-int* q;
-
 const unsigned D = 8;
 
-void prepare(int N) {
-    q = utils::allocate_aligned_heap<D>(N);
-}
-
-void push(int x) {
-    utils::push<D>(q, x, size);
-}
-
+// TODO
 inline void get_min(int* q, int& res, unsigned& idx) {
     __m128i v0 = _mm_load_si128 ((__m128i*) &q[0]);
     __m128i v1 = _mm_load_si128 ((__m128i*) &q[4]);
@@ -49,36 +39,4 @@ inline void get_min(int* q, int& res, unsigned& idx) {
     idx = _mm_extract_epi32(i, 0);
 }
 
-int pop() {
-    int res = INT_MAX;
-    unsigned i = 0;
-    q[0] = INT_MAX;
-    get_min(q, res, i);
-    q[0] = INT_MIN;
-    
-    int val = q[size];
-    q[size] = INT_MAX;
-    size--;
-    if (i == size + 1) {
-        return res;
-    }
-    while (1) {
-        if (i * D > size) {
-            q[i] = val;
-            return res;
-        }
-        utils::prefetch<D>(q, i);
-        unsigned left_son = i * D;
-        int min_val = INT_MAX;
-        unsigned next_i = 0;
-        get_min(q + left_son, min_val, next_i);
-        if (min_val < val) {
-            q[i] = min_val;
-            i = left_son + next_i;
-        } else {
-            break;
-        }
-    }
-    q[i] = val;
-    return res;
-}
+#include "heap_template.cpp"
