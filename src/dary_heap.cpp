@@ -8,13 +8,14 @@
 
 const unsigned D = BRANCHING_FACTOR;
 
-inline void get_min(int* q, int& res, unsigned& idx) {
-    res = q[0];
-    for (unsigned i = 1; i < D; ++i) {
+inline void goto_min(int* q, int& res, unsigned& idx) {
+    unsigned left_child = idx * D;
+    res = q[left_child];
+    for (unsigned i = left_child + 1; i < left_child + D; ++i) {
         int val = q[i];
         res = (res < val ? res : val);
     }
-    for (unsigned i = 0; i < D; ++i) {
+    for (unsigned i = left_child; i < left_child + D; ++i) {
         idx = (q[i] == res ? i : idx);
     }
 }

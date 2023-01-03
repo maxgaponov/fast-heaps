@@ -8,8 +8,9 @@
 
 const unsigned D = 8;
 
-inline void get_min(int* q, int& res, unsigned& idx) {
-    __m256i v = _mm256_load_si256((__m256i*) &q[0]);
+inline void goto_min(int* q, int& res, unsigned& idx) {
+    unsigned left_child = idx * D;
+    __m256i v = _mm256_load_si256((__m256i*) &q[left_child]);
     __m256i i = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
 
     {
@@ -35,7 +36,7 @@ inline void get_min(int* q, int& res, unsigned& idx) {
     }
 
     res = _mm256_extract_epi32(v, 0);
-    idx = _mm256_extract_epi32(i, 0);
+    idx = left_child + _mm256_extract_epi32(i, 0);
 }
 
 #include "heap_template.cpp"

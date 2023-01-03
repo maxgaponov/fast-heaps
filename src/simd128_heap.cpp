@@ -6,8 +6,9 @@
 
 const unsigned D = 4;
 
-inline void get_min(int* q, int& res, unsigned& idx) {
-    __m128i v = _mm_load_si128 ((__m128i*) &q[0]);
+inline void goto_min(int* q, int& res, unsigned& idx) {
+    unsigned left_child = idx * D;
+    __m128i v = _mm_load_si128 ((__m128i*) &q[left_child]);
     __m128i i = _mm_setr_epi32(0, 1, 2, 3);
 
     {
@@ -26,7 +27,7 @@ inline void get_min(int* q, int& res, unsigned& idx) {
     }
 
     res = _mm_extract_epi32(v, 0);
-    idx = _mm_extract_epi32(i, 0);
+    idx = left_child + _mm_extract_epi32(i, 0);
 }
 
 #include "heap_template.cpp"

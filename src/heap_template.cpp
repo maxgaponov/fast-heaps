@@ -26,10 +26,10 @@ void push(int x) {
 }
 
 int pop() {
-    q[0] = INT_MAX;
     int res;
-    unsigned i;
-    get_min(q, res, i);
+    unsigned i = 0;
+    q[0] = INT_MAX;
+    goto_min(q, res, i);
     q[0] = INT_MIN;
     
     int val = q[size];
@@ -54,9 +54,7 @@ int pop() {
         #elif PREFETCH_LEVEL == 5
         __builtin_prefetch(&q[i * D * D * D * D * D * D]);
         #endif
-        unsigned left_son = i * D;
-        get_min(q + left_son, q[i], i);
-        i += left_son;
+        goto_min(q, q[i], i);
         if (q[i] < val) {
         } else {
             q[i / D] = val;

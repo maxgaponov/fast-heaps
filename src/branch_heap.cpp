@@ -4,14 +4,15 @@
 
 const unsigned D = 2;
 
-// TODO: speed up
-inline void get_min(int* q, int& res, unsigned& idx) {
-    if (__builtin_expect(q[0] <= q[1], 1)) {
-        res = q[0];
-        idx = 0;
+inline void goto_min(int* q, int& res, unsigned& idx) {
+    int c0 = q[2 * idx];
+    int c1 = q[2 * idx + 1];
+    if (__builtin_expect(c0 <= c1, 1)) {
+        res = c0;
+        idx = 2 * idx;
     } else {
-        res = q[1];
-        idx = 1;
+        res = c1;
+        idx = 2 * idx + 1;
     }
 }
 
