@@ -1,5 +1,9 @@
 # Implementations of Heap Data Structure
 
-* prefetching next levels in sift-down
+* prefetching next layers in sift-down
 
-* using simd registers
+* using branch and conditional move instructions
+
+* storing several keys in each node
+
+* using simd registers (sse4, avx2)
