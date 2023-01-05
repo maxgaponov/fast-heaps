@@ -3,7 +3,7 @@
 #include <x86intrin.h>
 
 #ifndef PREFETCH_LEVEL
-#define PREFETCH_LEVEL 1
+#define PREFETCH_LEVEL 0
 #endif
 
 const unsigned D = 16;
